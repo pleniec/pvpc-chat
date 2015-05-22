@@ -1,3 +1,3 @@
 #!/bin/sh
 
-./node_modules/.bin/nodemon -x "./node_modules/.bin/coffee" app.coffee
+./node_modules/.bin/nodemon -x "./node_modules/.bin/coffee" app/server.coffee
