@@ -1,19 +1,25 @@
 ws = require 'ws'
 querystring = require 'querystring'
-PvpcCore = require './pvpcCore'
+nodeRestClient = require 'node-rest-client'
 
 server = new ws.Server({port: 3000})
-pvpcCore = new PvpcCore('nico')
-users = {}
+client = new nodeRestClient.Client({user: 'pvpc-secret', password: 'pefalpe987'})
+url = 'https://pvpc-core.herokuapp.com/api/private/users/by_access_token?access_token='
+connections = {}
 
 server.on 'connection', (connection) ->
   accessToken = querystring.parse(connection.upgradeReq.url.replace('/?', '')).accessToken
-  user = pvpcCore.userFromAccessToken(accessToken)
-  user.connection = connection
-  users[user.id] = user
+
+  client.get url + accessToken, (data, resp) ->
+    if resp.statusCode == 200
+      connection.userId = JSON.parse(data).user.id
+      connections[connection.userId] = connection
+    else
+      connection.close()
 
   connection.on 'message', (message) ->
-    connection.send('fawr')
+    for userId, _ of connections
+      connections[userId].send('message from ' + connection.userId + '> ' + message)
 
   connection.on 'close', () ->
-    console.log 'fail'
+    delete connections[connection.userId]
