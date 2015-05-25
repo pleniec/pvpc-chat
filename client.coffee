@@ -1,6 +1,10 @@
 WebSocket = require 'ws'
 
-webSocket = new WebSocket('ws://localhost:8080')
+webSocket = new WebSocket('ws://pvpc-chat.herokuapp.com:8080')
 
 webSocket.on 'open', () ->
-  webSocket.send JSON.stringify({zal: 'zal'})
+  webSocket.on 'message', (message) ->
+    console.log message
+
+  console.log '??'
+  webSocket.send 'siema ziom'

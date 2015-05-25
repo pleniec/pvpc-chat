@@ -2,7 +2,7 @@ WebSocketServer = require('ws').Server
 
 class Server
   constructor: () ->
-    @server = new WebSocketServer({port: 8080})
+    @server = new WebSocketServer({port: process.env.PORT || 5000})
 
   bindEvents: () ->
     @server.on 'connection', (connection) ->
