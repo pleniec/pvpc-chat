@@ -10,7 +10,6 @@ Message = require('./message')(sequelize);
 
 Conversation.hasMany(Member);
 Conversation.hasMany(Message);
-Member.hasMany(Message);
 
 module.exports.Conversation = Conversation;
 module.exports.Member = Member;

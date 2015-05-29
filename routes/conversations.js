@@ -3,8 +3,11 @@ module.exports = function(app, models) {
     var conversationKey = [req.params.userId, req.params.toUserId].sort().join(':');
     models.Conversation
       .findOrCreate({where: {key: conversationKey}})
-      .then(function(conversations) {
-        res.json(conversations[0]);
+      .then(function(result) {
+        var conversation = result[0];
+        conversation.createMember({userId: req.params.userId});
+        conversation.createMember({userId: req.params.toUserId});
+        res.json({id: conversation.id});
       });
   });
 };
