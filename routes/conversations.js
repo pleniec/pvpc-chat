@@ -5,8 +5,11 @@ module.exports = function(app, models) {
       .findOrCreate({where: {key: conversationKey}})
       .then(function(result) {
         var conversation = result[0];
-        conversation.createMember({userId: req.params.userId});
-        conversation.createMember({userId: req.params.toUserId});
+        var created = result[1];
+        if(created) {
+          conversation.createMember({userId: req.params.userId});
+          conversation.createMember({userId: req.params.toUserId});
+        }
         res.json({id: conversation.id});
       });
   });

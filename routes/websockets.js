@@ -16,7 +16,7 @@ function websockets(io, models) {
         })
         .then(function(conversation) {
           conversation.members.forEach(function(member) {
-            if(connections[member.userId]) {
+            if(userId != member.userId && connections[member.userId]) {
               connections[member.userId].send(message);
             }
           });
