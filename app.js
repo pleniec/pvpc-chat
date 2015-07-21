@@ -1,7 +1,11 @@
 var server = require('http').Server(require('express')());
 var io = require('socket.io')(server);
 
-var amqp = require('amqp').createConnection({host: 'localhost'});
+var amqp = require('amqp').createConnection({
+  host: 'localhost',
+  login: 'rabbitmq',
+  password: 'QdRtHV5R9irvJDTG'
+});
 var redis = require('redis').createClient();
 var pvpc = require('./pvpc.js');
 
@@ -13,7 +17,7 @@ redis.on('ready', function() {
           socket.disconnect();
           return;
         }
-/*
+
         amqp.queue('chat:user:' + userId, function(queue) {
           queue.subscribe(function(message) {
             socket.emit('message', {message: message});
@@ -22,7 +26,7 @@ redis.on('ready', function() {
 
         socket.on('message', function(message) {
         });
-*/
+
         socket.emit('news', {hello: 'world'});
         socket.on('my other event', function(data) {
           console.log(data);
