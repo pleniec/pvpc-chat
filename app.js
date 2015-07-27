@@ -7,7 +7,6 @@ var amqp = require('amqp').createConnection({
   password: 'QdRtHV5R9irvJDTG'
 });
 var redis = require('redis').createClient();
-var pvpc = require('./pvpc.js');
 
 redis.on('ready', function() {
   console.log('redis ready');
@@ -22,16 +21,24 @@ redis.on('ready', function() {
           return;
         }
 
+        socket.on('message', function(message) {
+          message.userId = userId;
+          console.log('mesyndz: ' + JSON.stringify(message));
+          redis.smembers('conversation:' + message.conversation, function(error, userIds) {
+            if(userIds.indexOf(userId) != -1) {
+              userIds.forEach(function(userId) {
+                amqp.publish('chat:user:' + userId, JSON.stringify(message));
+              });
+            }
+          });
+        });
+
         console.log('valid access token');
         amqp.queue('chat:user:' + userId, function(queue) {
           queue.subscribe(function(queueMessage) {
             console.log('received message: ' + queueMessage.data.toString('utf8'));
-            socket.emit('message', {text: queueMessage.data.toString('utf8')});
-          });
-        });
-
-        socket.on('message', function(message) {
-          redis.lrange('conversation:' + message.conversation, 0, -1, function(error, userIds) {
+            socket.emit('message', JSON.parse(queueMessage.data.toString('utf8')));
+            //socket.emit('message', {text: 'moze'});
           });
         });
       });
