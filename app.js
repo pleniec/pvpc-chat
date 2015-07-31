@@ -10,16 +10,21 @@ var redis = require('redis').createClient();
 
 redis.on('ready', function() {
   amqp.on('ready', function() {
+    console.log('chat server ready');
     io.on('connection', function(socket) {
+      console.log('new connection');
       redis.get('access_token:' + socket.handshake.query.accessToken, function(error, userId) {
         if(!userId) {
+          console.log('invalid access token, disconnecting');
           socket.emit('errorMessage', {text: 'invalid access token'});
           socket.disconnect();
           return;
         }
 
         socket.on('message', function(message) {
+          console.log('new message - ' + JSON.stringify(message));
           message.userId = userId;
+          amqp.publish('chat:messages', JSON.stringify(message));
           redis.smembers('chat:conversation:' + message.conversation, function(error, userIds) {
             if(userIds.indexOf(userId) != -1) {
               userIds.forEach(function(userId) {
